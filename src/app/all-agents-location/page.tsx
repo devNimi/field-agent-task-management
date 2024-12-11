@@ -1,7 +1,7 @@
-// src/app/all-agents-location/page.tsx
 "use client";
 
 import { Header } from "../(components)/Header";
+import { MapComponent } from "@/app/(components)/GoogleMaps";
 import { dummyAgents } from "@/lib/dummyData";
 import styled from "styled-components";
 
@@ -33,12 +33,28 @@ const AgentListItem = styled.div`
 `;
 
 export default function AllAgentsLocation() {
+  // Assuming first agent's location as center
+  const centerLocation = {
+    lat: dummyAgents[0].latitude,
+    lng: dummyAgents[0].longitude,
+  };
+
+  const agentMarkers = dummyAgents.map((agent) => ({
+    lat: agent.latitude,
+    lng: agent.longitude,
+    label: agent.name,
+  }));
+
   return (
     <>
       <Header />
       <MapContainer>
-        {/* Placeholder for Google Maps integration */}
-        Google Maps with Agent Locations will be embedded here
+        <MapComponent
+          center={centerLocation}
+          markers={agentMarkers}
+          zoom={10}
+        />
+
         <AgentList>
           <h3>Active Agents</h3>
           {dummyAgents.map((agent) => (

@@ -1,7 +1,7 @@
-// src/app/task-details/[id]/page.tsx
 "use client";
 
 import { Header } from "../../(components)/Header";
+import { MapComponent } from "@/app/(components)/GoogleMaps";
 import { dummyTasks, dummyAgents } from "@/lib/dummyData";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
@@ -44,6 +44,16 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
 
   if (!task || !agent) return <div>Loading...</div>;
 
+  // Dummy locations for demonstration
+  const agentLocation = {
+    lat: agent.latitude,
+    lng: agent.longitude,
+  };
+  const customerLocation = {
+    lat: agentLocation.lat + 0.01,
+    lng: agentLocation.lng + 0.01,
+  };
+
   return (
     <>
       <Header />
@@ -72,10 +82,17 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
 
         <DetailSection>
           <h2>Location</h2>
-          <MapContainer>
-            {/* Placeholder for Google Maps integration */}
-            Google Maps will be embedded here
-          </MapContainer>
+          <MapComponent
+            center={agentLocation}
+            markers={[
+              agentLocation,
+              {
+                ...customerLocation,
+                label: "Customer",
+              },
+            ]}
+            zoom={10}
+          />
         </DetailSection>
       </DetailsContainer>
     </>

@@ -1,8 +1,8 @@
-// src/app/new-task/page.tsx
 "use client";
 
 import { useState } from "react";
 import { Header } from "../(components)/Header";
+import { AddressAutocomplete } from "../(components)/AddressAutocomplete";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -52,13 +52,25 @@ export default function NewTask() {
   const [scheduleNow, setScheduleNow] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [coordinates, setCoordinates] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleAddressSelect = (
+    fullAddress: string,
+    lat: number,
+    lng: number
+  ) => {
+    setAddress(fullAddress);
+    setCoordinates({ lat, lng });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulating API call with setTimeout
-    setTimeout(() => {
+    try {
       const taskData = {
         id: uuidv4(),
         taskType,
@@ -67,13 +79,16 @@ export default function NewTask() {
         phone,
         scheduleNow,
         selectedDate: selectedDate?.toISOString(),
-        latitude: 0, // Placeholder for Google Maps geocoding
-        longitude: 0, // Placeholder for Google Maps geocoding
+        latitude: coordinates?.lat,
+        longitude: coordinates?.lng,
       };
 
       console.log("Task Submitted:", taskData);
+    } catch (error) {
+      console.error("Submission error:", error);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -98,13 +113,13 @@ export default function NewTask() {
 
           <FormField>
             <label>Address</label>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Start typing address..."
-              required
-            />
+            <AddressAutocomplete onAddressSelect={handleAddressSelect} />
+            {coordinates && (
+              <p>
+                Coordinates: Lat {coordinates.lat.toFixed(4)}, Lng{" "}
+                {coordinates.lng.toFixed(4)}
+              </p>
+            )}
           </FormField>
 
           <FormField>
