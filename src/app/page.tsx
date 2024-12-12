@@ -6,7 +6,15 @@ import { dummyTasks } from "@/lib/dummyData";
 import { getAllTasksAPI } from "@/util/api";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { InfinitySpin } from "react-loader-spinner";
 import styled from "styled-components";
+
+const LoaderContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
 
 const TableContainer = styled.div`
   padding: 2rem;
@@ -35,8 +43,9 @@ const taskMapper: { [key: string]: string } = {
   blood_sample_collection: "Blood sample collection",
 };
 export default function Home() {
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     // Fetch agent data from API
     const fetchAgents = async () => {
@@ -56,6 +65,13 @@ export default function Home() {
 
     fetchAgents();
   }, []);
+
+  if (!tasks)
+    return (
+      <LoaderContainer>
+        <InfinitySpin width="200" color="#4fa94d" />
+      </LoaderContainer>
+    );
 
   return (
     <>

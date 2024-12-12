@@ -118,8 +118,8 @@ export default function AllAgentsLocation() {
   }
 
   const centerLocation = {
-    lat: agents[0].latitude,
-    lng: agents[0].longitude,
+    lat: agents[4].latitude,
+    lng: agents[4].longitude,
   };
 
   const agentMarkers = agents.map((agent) => ({
@@ -138,7 +138,7 @@ export default function AllAgentsLocation() {
             <MapComponent
               center={centerLocation}
               markers={agentMarkers}
-              zoom={15}
+              zoom={14}
             />
             <AgentList>
               <h3>Active Agents</h3>

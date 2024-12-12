@@ -48,10 +48,12 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
   const [agentLocation, setAgentLocation] = useState({
     lat: 40.7128,
     lng: -74.006,
+    label: "Agent",
   });
   const [customerLocation, setCustomerLocation] = useState({
     lat: 40.7128 + 0.01,
     lng: -74.006 + 0.01,
+    label: "Customer",
   });
 
   useEffect(() => {
@@ -65,10 +67,12 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
         setAgentLocation({
           lat: data.agent_current_location.latitude,
           lng: data.agent_current_location.longitude,
+          label: "Agent",
         });
         setCustomerLocation({
           lat: data.task_location.latitude,
           lng: data.task_location.longitude,
+          label: "Customer",
         });
         setLoading(false);
       } catch (error) {
@@ -97,17 +101,18 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
           <h2>Task Information</h2>
           <p>Task ID: {task?.id}</p>
           <p>Task Type: {task.master_task_config_slug}</p>
-          {/* TODO */}
           <p>Status: {task?.status || "Nascent"}</p>
         </DetailSection>
 
         <DetailSection>
           <h2>Agent Details</h2>
           <p>Name: {task?.agent_name}</p>
-          <p>
-            Estimated Time of Arrival: new Date(task?.estimated_time_of_arrival
-            || "")
-          </p>
+          {task?.status !== "completed" && (
+            <p>
+              Estimated Time of Arrival:{" "}
+              {new Date(task?.estimated_time_of_arrival || "").toLocaleString()}
+            </p>
+          )}
         </DetailSection>
 
         <DetailSection>

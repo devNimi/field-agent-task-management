@@ -25,10 +25,8 @@ export function MapComponent({ center, markers = [], zoom = 12 }: MapProps) {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries: ["places"],
   });
-
   const [directions, setDirections] =
     useState<google.maps.DirectionsResult | null>(null);
-
   useEffect(() => {
     if (isLoaded && markers.length === 2) {
       const [origin, destination] = markers;
@@ -69,7 +67,8 @@ export function MapComponent({ center, markers = [], zoom = 12 }: MapProps) {
           <Marker
             key={index}
             position={marker}
-            label={index === 0 ? "Agent" : "Customer"}
+            label={marker?.label}
+            // label={index === 0 ? "Agent" : "Customer"}
           />
         ))}
       </GoogleMap>
