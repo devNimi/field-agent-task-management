@@ -98,10 +98,9 @@ export function AddressAutocomplete({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInput(value);
-    console.log("value...", autocompleteService);
+
     // Only search if we have a service and enough characters
     if (autocompleteService.current && value.length > 2) {
-      console.log("seathcing...");
       autocompleteService.current.getPlacePredictions(
         { input: value },
         (predictions, status) => {

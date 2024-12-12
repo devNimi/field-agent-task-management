@@ -10,6 +10,7 @@ const NavContainer = styled.nav`
   padding: 1rem;
   background-color: #333;
   color: white;
+  align-items: center;
 `;
 
 const NavLinks = styled.div`
@@ -28,7 +29,18 @@ const NavLinks = styled.div`
 export function Header() {
   return (
     <NavContainer>
-      <h1>Field Agent Task Management</h1>
+      <Link href="/">
+        <h1
+          style={{
+            color: "white",
+            textDecoration: "underline",
+            textDecorationColor: "#333333",
+          }}
+        >
+          Field Agent Task Management
+        </h1>
+      </Link>
+
       <NavLinks>
         <Link href="/">Tasks</Link>
         <Link href="/new-task">Create Task</Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios"; // Import Axios
 import { Header } from "../(components)/Header";
 import { AddressAutocomplete } from "../(components)/AddressAutocomplete";
 import styled from "styled-components";
@@ -31,6 +32,11 @@ const FormField = styled.div`
   }
 `;
 
+const RadioGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+`;
+
 const SubmitButton = styled.button`
   width: 100%;
   padding: 0.75rem;
@@ -42,6 +48,14 @@ const SubmitButton = styled.button`
   &:disabled {
     background-color: #cccccc;
   }
+`;
+
+const Title = styled.h1`
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 1.5rem 0;
+  color: #333;
+  text-align: center;
 `;
 
 export default function NewTask() {
@@ -72,18 +86,27 @@ export default function NewTask() {
 
     try {
       const taskData = {
-        id: uuidv4(),
-        taskType,
-        address,
-        name,
-        phone,
-        scheduleNow,
-        selectedDate: selectedDate?.toISOString(),
-        latitude: coordinates?.lat,
-        longitude: coordinates?.lng,
+        task: taskType,
+        location: {
+          latitude: coordinates?.lat,
+          longitude: coordinates?.lng,
+          address,
+        },
+        customer_details: {
+          customer_name: name,
+          phone_number: phone,
+        },
+        is_scheduled: scheduleNow === "yes" ? false : true,
+        schedule_start_date_time: selectedDate?.toISOString(),
       };
 
-      console.log("Task Submitted:", taskData);
+      // Make the POST request using Axios
+      const response = await axios.post(
+        "https://serviceos-vyavastha-service-dev.internal.ackodev.com/ackathon/create/task",
+        taskData
+      );
+
+      window.location.href = `/task-details/${response.data.data.task_id}`;
     } catch (error) {
       console.error("Submission error:", error);
     } finally {
@@ -94,6 +117,7 @@ export default function NewTask() {
   return (
     <>
       <Header />
+      <Title> Create new task</Title>
       <FormContainer>
         <form onSubmit={handleSubmit}>
           <FormField>
@@ -104,10 +128,12 @@ export default function NewTask() {
               required
             >
               <option value="">Select Task Type</option>
-              <option value="pick">Pick</option>
-              <option value="drop">Drop</option>
-              <option value="inspection">Inspection</option>
+              <option value="mobile_pickup">Mobile pickup</option>
               <option value="survey">Survey</option>
+              <option value="blood_sample_collection">
+                Blood Sample Collection
+              </option>
+              <option value="roadside_assistance">Road Side assistance</option>
             </select>
           </FormField>
 
@@ -144,15 +170,28 @@ export default function NewTask() {
 
           <FormField>
             <label>Schedule Now?</label>
-            <select
-              value={scheduleNow}
-              onChange={(e) => setScheduleNow(e.target.value)}
-              required
-            >
-              <option value="">Select Option</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-            </select>
+            <RadioGroup>
+              <label style={{ display: "flex" }}>
+                <input
+                  type="radio"
+                  name="scheduleNow"
+                  value="yes"
+                  checked={scheduleNow === "yes"}
+                  onChange={(e) => setScheduleNow(e.target.value)}
+                />
+                Yes
+              </label>
+              <label style={{ display: "flex" }}>
+                <input
+                  type="radio"
+                  name="scheduleNow"
+                  value="no"
+                  checked={scheduleNow === "no"}
+                  onChange={(e) => setScheduleNow(e.target.value)}
+                />
+                No
+              </label>
+            </RadioGroup>
           </FormField>
 
           {scheduleNow === "no" && (

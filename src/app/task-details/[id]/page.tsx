@@ -5,6 +5,11 @@ import { MapComponent } from "@/app/(components)/GoogleMaps";
 import { dummyTasks, dummyAgents } from "@/lib/dummyData";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
+import { getTaskDetailsById } from "@/util/api";
+import axios from "axios";
+import { InfinitySpin } from "react-loader-spinner";
+
+import { useParams } from "next/navigation";
 
 const DetailsContainer = styled.div`
   max-width: 800px;
@@ -29,30 +34,58 @@ const MapContainer = styled.div`
   background-color: #f0f0f0;
 `;
 
+const LoaderContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
+
 export default function TaskDetails({ params }: { params: { id: string } }) {
   const [task, setTask] = useState<any>(null);
-  const [agent, setAgent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const [agentLocation, setAgentLocation] = useState({
+    lat: 40.7128,
+    lng: -74.006,
+  });
+  const [customerLocation, setCustomerLocation] = useState({
+    lat: 40.7128 + 0.01,
+    lng: -74.006 + 0.01,
+  });
 
   useEffect(() => {
-    // Simulate fetching task and agent details
-    const foundTask = dummyTasks.find((t) => t.id === params.id);
-    const foundAgent = dummyAgents.find((a) => a.name === foundTask?.agentName);
+    const pageId = params.id;
+    const fetchAgents = async () => {
+      try {
+        const response = await axios.get(`${getTaskDetailsById}${pageId}`);
+        // Map data to relevant fields
+        const data = response.data.data;
+        setTask(data);
+        setAgentLocation({
+          lat: data.agent_current_location.latitude,
+          lng: data.agent_current_location.longitude,
+        });
+        setCustomerLocation({
+          lat: data.task_location.latitude,
+          lng: data.task_location.longitude,
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching agents:", error);
+        setLoading(false);
+      }
+    };
 
-    setTask(foundTask);
-    setAgent(foundAgent);
-  }, [params.id]);
+    fetchAgents();
+  }, []);
 
-  if (!task || !agent) return <div>Loading...</div>;
-
-  // Dummy locations for demonstration
-  const agentLocation = {
-    lat: agent.latitude,
-    lng: agent.longitude,
-  };
-  const customerLocation = {
-    lat: agentLocation.lat + 0.01,
-    lng: agentLocation.lng + 0.01,
-  };
+  if (!task)
+    return (
+      <LoaderContainer>
+        <InfinitySpin width="200" color="#4fa94d" />
+      </LoaderContainer>
+    );
 
   return (
     <>
@@ -62,38 +95,37 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
 
         <DetailSection>
           <h2>Task Information</h2>
-          <p>Task ID: {task.id}</p>
-          <p>Task Type: {task.taskType}</p>
-          <p>Status: {task.status}</p>
+          <p>Task ID: {task?.id}</p>
+          <p>Task Type: {task.master_task_config_slug}</p>
+          {/* TODO */}
+          <p>Status: {task?.status || "Nascent"}</p>
         </DetailSection>
 
         <DetailSection>
           <h2>Agent Details</h2>
-          <p>Name: {agent.name}</p>
-          <p>Phone: {agent.phone}</p>
-          <p>Estimated Time of Arrival: Soon</p>
+          <p>Name: {task?.agent_name}</p>
+          <p>
+            Estimated Time of Arrival: new Date(task?.estimated_time_of_arrival
+            || "")
+          </p>
         </DetailSection>
 
         <DetailSection>
           <h2>Customer Information</h2>
-          <p>Name: {task.customerName}</p>
-          <p>Phone: {task.customerPhone}</p>
+          <p>Name: {task.customer_name}</p>
+          <p>Phone: {task.customer_phone_number}</p>
         </DetailSection>
 
-        <DetailSection>
-          <h2>Location</h2>
-          <MapComponent
-            center={agentLocation}
-            markers={[
-              agentLocation,
-              {
-                ...customerLocation,
-                label: "Customer",
-              },
-            ]}
-            zoom={10}
-          />
-        </DetailSection>
+        {task?.status !== "completed" && (
+          <DetailSection>
+            <h2>Location</h2>
+            <MapComponent
+              center={agentLocation} // Center the map on the agent's location
+              markers={[agentLocation, customerLocation]} // Pass agent and customer locations
+              zoom={10}
+            />
+          </DetailSection>
+        )}
       </DetailsContainer>
     </>
   );

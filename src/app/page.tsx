@@ -3,6 +3,9 @@
 
 import { Header } from "./(components)/Header";
 import { dummyTasks } from "@/lib/dummyData";
+import { getAllTasksAPI } from "@/util/api";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const TableContainer = styled.div`
@@ -25,7 +28,35 @@ const Table = styled.table`
   }
 `;
 
+const taskMapper: { [key: string]: string } = {
+  roadside_assistance: "Road side assistance",
+  mobile_pickup: "Mobile pickup",
+  survey: "Survey",
+  blood_sample_collection: "Blood sample collection",
+};
 export default function Home() {
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    // Fetch agent data from API
+    const fetchAgents = async () => {
+      try {
+        const response = await axios.get(getAllTasksAPI);
+        const tasksData = response.data.data;
+        console.log(tasksData);
+
+        // Map data to relevant fields
+        setTasks(tasksData);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching agents:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchAgents();
+  }, []);
+
   return (
     <>
       <Header />
@@ -43,16 +74,16 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {dummyTasks.map((task) => (
-              <tr key={task.id}>
-                <td>{task.id}</td>
-                <td>{task.taskType}</td>
-                <td>{task.agentName}</td>
-                <td>{task.customerName}</td>
-                <td>{task.customerPhone}</td>
-                <td>{task.status}</td>
+            {tasks.map((task: any) => (
+              <tr key={task?.id}>
+                <td>{task?.id}</td>
+                <td>{taskMapper[task?.master_task_config_slug]}</td>
+                <td>{task?.agent_name}</td>
+                <td>{task?.customer_name}</td>
+                <td>{task?.customer_phone_number}</td>
+                <td>{task?.status}</td>
                 <td>
-                  <a href={`/task-details/${task.id}`}>View Details</a>
+                  <a href={`/task-details/${task?.id}`}>View Details</a>
                 </td>
               </tr>
             ))}
