@@ -104,16 +104,20 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
           <p>Status: {task?.status || "Nascent"}</p>
         </DetailSection>
 
-        <DetailSection>
-          <h2>Agent Details</h2>
-          <p>Name: {task?.agent_name}</p>
-          {task?.status !== "completed" && (
-            <p>
-              Estimated Time of Arrival:{" "}
-              {new Date(task?.estimated_time_of_arrival || "").toLocaleString()}
-            </p>
-          )}
-        </DetailSection>
+        {task.status !== "Assignment Pending" && (
+          <DetailSection>
+            <h2>Agent Details</h2>
+            <p>Name: {task?.agent_name}</p>
+            {task?.status !== "completed" && (
+              <p>
+                Estimated Time of Arrival:{" "}
+                {new Date(
+                  task?.estimated_time_of_arrival || ""
+                ).toLocaleString()}
+              </p>
+            )}
+          </DetailSection>
+        )}
 
         <DetailSection>
           <h2>Customer Information</h2>
@@ -121,16 +125,17 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
           <p>Phone: {task.customer_phone_number}</p>
         </DetailSection>
 
-        {task?.status !== "completed" && (
-          <DetailSection>
-            <h2>Location</h2>
-            <MapComponent
-              center={agentLocation} // Center the map on the agent's location
-              markers={[agentLocation, customerLocation]} // Pass agent and customer locations
-              zoom={10}
-            />
-          </DetailSection>
-        )}
+        {task.status !== "completed" &&
+          task.status !== "Assignment Pending" && (
+            <DetailSection>
+              <h2>Location</h2>
+              <MapComponent
+                center={agentLocation} // Center the map on the agent's location
+                markers={[agentLocation, customerLocation]} // Pass agent and customer locations
+                zoom={10}
+              />
+            </DetailSection>
+          )}
       </DetailsContainer>
     </>
   );
