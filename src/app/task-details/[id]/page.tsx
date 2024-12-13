@@ -1,7 +1,7 @@
 "use client";
 
 import { Header } from "../../(components)/Header";
-import { MapComponent } from "@/app/(components)/GoogleMaps";
+import { MapComponent } from "@/app/(components)/GoogleMapsTaskDetails";
 import { dummyTasks, dummyAgents } from "@/lib/dummyData";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
@@ -49,11 +49,13 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
     lat: 40.7128,
     lng: -74.006,
     label: "Agent",
+    icon: "/images/bike-3.png",
   });
   const [customerLocation, setCustomerLocation] = useState({
     lat: 40.7128 + 0.01,
     lng: -74.006 + 0.01,
     label: "Customer",
+    icon: "/images/house.png",
   });
 
   useEffect(() => {
@@ -68,11 +70,13 @@ export default function TaskDetails({ params }: { params: { id: string } }) {
           lat: data.agent_current_location.latitude,
           lng: data.agent_current_location.longitude,
           label: "Agent",
+          icon: "/images/bike-3.png",
         });
         setCustomerLocation({
           lat: data.task_location.latitude,
           lng: data.task_location.longitude,
           label: "Customer",
+          icon: "/images/house.png",
         });
         setLoading(false);
       } catch (error) {

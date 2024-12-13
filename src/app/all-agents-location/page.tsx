@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Header } from "../(components)/Header";
-import { MapComponent } from "@/app/(components)/GoogleMaps";
 import { InfinitySpin } from "react-loader-spinner"; // Import the loader
 import styled from "styled-components";
 import { getAllAgentsAPI } from "@/util/api";
+import { MapComponentAllAgent } from "@/app/(components)/GoogleMapsAllAgents";
 
 const PageContainer = styled.div`
   display: flex;
@@ -135,7 +135,7 @@ export default function AllAgentsLocation() {
         <Title>All Agents Location</Title>
         <MapWrapper>
           <MapContainer>
-            <MapComponent
+            <MapComponentAllAgent
               center={centerLocation}
               markers={agentMarkers}
               zoom={14}

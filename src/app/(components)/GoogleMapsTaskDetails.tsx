@@ -14,9 +14,16 @@ const MapContainer = styled.div`
   height: 400px;
 `;
 
+interface MarkerProps {
+  lat: number;
+  lng: number;
+  label?: string;
+  icon?: string; // Added icon property
+}
+
 interface MapProps {
   center: { lat: number; lng: number };
-  markers?: { lat: number; lng: number; label?: string }[];
+  markers?: MarkerProps[];
   zoom?: number;
 }
 
@@ -27,6 +34,7 @@ export function MapComponent({ center, markers = [], zoom = 12 }: MapProps) {
   });
   const [directions, setDirections] =
     useState<google.maps.DirectionsResult | null>(null);
+
   useEffect(() => {
     if (isLoaded && markers.length === 2) {
       const [origin, destination] = markers;
@@ -60,15 +68,24 @@ export function MapComponent({ center, markers = [], zoom = 12 }: MapProps) {
         zoom={zoom}
       >
         {/* Render route if directions are available */}
-        {directions && <DirectionsRenderer directions={directions} />}
+        {directions && (
+          <DirectionsRenderer
+            directions={directions}
+            options={{ suppressMarkers: true }} // Hide default markers
+          />
+        )}
 
-        {/* Additional markers */}
+        {/* Additional markers with custom icons */}
         {markers.map((marker, index) => (
           <Marker
             key={index}
-            position={marker}
-            label={marker?.label}
-            // label={index === 0 ? "Agent" : "Customer"}
+            position={{ lat: marker.lat, lng: marker.lng }}
+            // label={marker?.label}
+            icon={{
+              // @ts-ignore
+              url: marker.icon, // Custom marker icon URL
+              scaledSize: new google.maps.Size(40, 40), // Customize the size of the marker icon
+            }}
           />
         ))}
       </GoogleMap>
